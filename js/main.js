@@ -1,3 +1,5 @@
+/* Logic */
+
 class Archer {
     constructor(id, initialAccuracy) {
         this.id = id;
@@ -64,23 +66,46 @@ class App {
 
     run() {
         let turnsLog = this.getTurnsLog(),
-            bestTurnForFrist = null,
+            bestTurnForFirst = null,
             bestTurnForSecond = null;
         for (let i = 0; i < 10; i++) {
             const firstArcher = turnsLog[i][0],
                 firstArcherNextTurn = turnsLog[i + 1][0],
                 secondArcher = turnsLog[i][1];
-            if (firstArcher.accuracy > secondArcher.miss && !bestTurnForFrist) {
-                bestTurnForFrist = firstArcher.turn;
+            if (firstArcher.accuracy > secondArcher.miss && !bestTurnForFirst) {
+                bestTurnForFirst = firstArcher.turn;
             }
             if (secondArcher.accuracy > firstArcherNextTurn.miss && !bestTurnForSecond) {
                 bestTurnForSecond = secondArcher.turn;
             }
         }
-        return {bestTurnForFrist, bestTurnForSecond};
+        return {bestTurnForFirst, bestTurnForSecond};
     }
 }
 
-console.clear();
+/*console.clear();
 app = new App(0.1, 0.1);
-console.log(app.run());
+console.log(app.run());*/
+
+/*Render*/
+
+function updatePage(newData) {
+    /*update elements with new converted values*/
+    const resultList = document.getElementById('result'),
+        {bestTurnForFirst, bestTurnForSecond} = newData;
+    resultList.innerHTML = '';
+    resultList.innerHTML += `<li class="list-group-item">For first archer: ${bestTurnForFirst}</li>`;
+    resultList.innerHTML += `<li class="list-group-item">For second archer: ${bestTurnForSecond}</li>`;
+}
+
+
+const inputForm = document.getElementById('input-form');
+
+inputForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const firstArcherAccuracy = Number(document.getElementById('firstArcherAccuracy').value),
+        secondArcherAccuracy = Number(document.getElementById('secondArcherAccuracy').value),
+        app = new App(firstArcherAccuracy, secondArcherAccuracy),
+        solution = app.run();
+    updatePage(solution);
+});
