@@ -2,6 +2,7 @@
 
 class Archer {
     constructor(id, initialAccuracy) {
+        /*create new archer with individual id and initial accuracy*/
         this.id = id;
         this.accuracy = initialAccuracy;
         this.accuracyIncrement = (1 - initialAccuracy) / 10;
@@ -9,6 +10,7 @@ class Archer {
     }
 
     move() {
+        /*move this archer one step forward*/
         if (this.distance > 0) {
             this.distance--;
             this.accuracy += this.accuracyIncrement;
@@ -17,45 +19,39 @@ class Archer {
         }
     }
 
-    getDistance() {
-        return this.distance;
-    }
-
-    getAccuracy() {
-        return parseFloat(this.accuracy.toFixed(2));
-    }
-
-    getId() {
-        return this.id;
+    getArcherInfo() {
+        /*get this archer's id and current accuracy*/
+        return {
+            id: this.id,
+            accuracy: parseFloat(this.accuracy.toFixed(2))
+        }
     }
 }
 
 class App {
     constructor(firstArcherInitialAccuracy, secondArcherInitialAccuracy) {
+        /*create new app with initial accuracies for first and second archers*/
         this.firstArcher = new Archer(1, firstArcherInitialAccuracy);
         this.secondArcher = new Archer(2, secondArcherInitialAccuracy);
 
     }
 
-    getArcherInfo(archer) {
-        return {
-            id: archer.getId(),
-            accuracy: archer.getAccuracy()
-        }
-    }
-
     getTurnsLog() {
+        /*calculate all accuracies per turn for both archers and make duel log*/
         const turns = [];
         for (let turn = 0; turn <= 10; turn++) {
-            const firstArcherInfo = this.getArcherInfo(this.firstArcher);
-            const secondArcherInfo = this.getArcherInfo(this.secondArcher);
+            const firstArcherInfo = this.firstArcher.getArcherInfo();
+            const secondArcherInfo = this.secondArcher.getArcherInfo();
+            //calculate chances of missing
             const missFirst = parseFloat((1 - firstArcherInfo.accuracy).toFixed(2));
             const missSecond = parseFloat((1 - secondArcherInfo.accuracy).toFixed(2));
+            //log this turn
             const turnLog = [
                 {turn, ...firstArcherInfo, miss: missFirst},
                 {turn, ...secondArcherInfo, miss: missSecond}
             ];
             turns.push(turnLog);
+            //if archers not in end point, move them.
             if (turn < 10) {
                 this.firstArcher.move();
                 this.secondArcher.move();
@@ -65,9 +61,11 @@ class App {
     }
 
     run() {
-        let turnsLog = this.getTurnsLog(),
+        /*run this app*/
+        let turnsLog = this.getTurnsLog(), //get info about all turns
             bestTurnForFirst = null,
             bestTurnForSecond = null;
+        //find best turns for every archer
         for (let i = 0; i < 10; i++) {
             const firstArcher = turnsLog[i][0],
                 firstArcherNextTurn = turnsLog[i + 1][0],
