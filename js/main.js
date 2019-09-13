@@ -33,10 +33,12 @@ class App {
         /*create new app with initial accuracies for first and second archers*/
         this.firstArcher = new Archer(1, firstArcherInitialAccuracy);
         this.secondArcher = new Archer(2, secondArcherInitialAccuracy);
+        this.bestTurnForFirst = null;
+        this.bestTurnForSecond = null;
 
     }
 
-    getTurnsLog() {
+    run() {
         /*calculate all accuracies per turn for both archers and make duel log*/
         const turns = [];
         for (let turn = 0; turn <= 10; turn++) {
@@ -46,44 +48,34 @@ class App {
             const missFirst = parseFloat((1 - firstArcherInfo.accuracy).toFixed(2));
             const missSecond = parseFloat((1 - secondArcherInfo.accuracy).toFixed(2));
             //log this turn
-            const turnLog = [
+            const turnsLog = [
                 {turn, ...firstArcherInfo, miss: missFirst},
                 {turn, ...secondArcherInfo, miss: missSecond}
             ];
-            turns.push(turnLog);
-            //if archers not in end point, move them.
-            if (turn < 10) {
+            turns.push(turnsLog);
+            if (turn) {
+                let firstArcherPrevTurn = turns[turn - 1][0],
+                    firstArcherThisTurn = turns[turn][0],
+                    secondArcherPrevTurn = turns[turn - 1][1];
+                //check best turn for first archer
+                if (firstArcherPrevTurn.accuracy > secondArcherPrevTurn.miss && !this.bestTurnForFirst) {
+                    this.bestTurnForFirst = firstArcherPrevTurn.turn;
+                }
+                //check best turn for second archer
+                if (secondArcherPrevTurn.accuracy > firstArcherThisTurn.miss && !this.bestTurnForSecond) {
+                    this.bestTurnForSecond = secondArcherPrevTurn.turn;
+                }
+            }
+            //if archers not in end point or best turns don't known, move them.
+            if (turn < 10 && (!this.bestTurnForFirst || !this.bestTurnForSecond)) {
                 this.firstArcher.move();
                 this.secondArcher.move();
             }
         }
-        return turns;
-    }
-
-    run() {
-        /*run this app*/
-        let turnsLog = this.getTurnsLog(), //get info about all turns
-            bestTurnForFirst = null,
-            bestTurnForSecond = null;
-        //find best turns for every archer
-        for (let i = 0; i < 10; i++) {
-            const firstArcher = turnsLog[i][0],
-                firstArcherNextTurn = turnsLog[i + 1][0],
-                secondArcher = turnsLog[i][1];
-            if (firstArcher.accuracy > secondArcher.miss && !bestTurnForFirst) {
-                bestTurnForFirst = firstArcher.turn;
-            }
-            if (secondArcher.accuracy > firstArcherNextTurn.miss && !bestTurnForSecond) {
-                bestTurnForSecond = secondArcher.turn;
-            }
-        }
-        return {bestTurnForFirst, bestTurnForSecond};
+        return {bestTurnForFirst: this.bestTurnForFirst, bestTurnForSecond: this.bestTurnForSecond};
     }
 }
 
-/*console.clear();
-app = new App(0.1, 0.1);
-console.log(app.run());*/
 
 /*Render*/
 
